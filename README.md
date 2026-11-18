@@ -34,8 +34,8 @@ Las versiones efectivas de las dependencias quedan en `requirements-lock.txt` _(
 ## Instalación desde cero
 
 ```bash
-git clone https://github.com/prog-automatizacion-2-2026/<repo>.git
-cd <repo>
+git clone https://github.com/prog-automatizacion-2-2026/Fenix.git
+cd Fenix
 python -m venv .venv
 # Linux/macOS/WSL: source .venv/bin/activate
 # Windows PowerShell: .venv\Scripts\Activate.ps1
