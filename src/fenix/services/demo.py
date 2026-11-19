@@ -1,10 +1,11 @@
 """Laboratorio acotado de recursos. Integrante 2 prepara, integrante 6 verifica."""
 import os  # Lee el nombre del proyecto para las etiquetas.
+import time  # Espaciado corto entre consultas de estado.
 from botocore.exceptions import ClientError  # Se inspecciona el código, no se traga.
 from fenix.config.settings import client
 from fenix.services.cloud_support import (create_bucket, create_group, create_instance,
                                           mock_inputs, aws_tags)
-from fenix.utils.errors import PermanentError
+from fenix.utils.errors import PermanentError, RetryableError, ValidationError
 from fenix.utils.state import load, save
 from fenix.utils.validation import identifier
 
@@ -99,15 +100,33 @@ def inject_fault(alias: str) -> None:
         None cuando el fallo simulado se verifica mediante el SDK.
     Raises:
         ValidationError: Si el alias no pertenece al inventario.
-        NotImplementedError: Mientras falte TODO I6-A.
+        RetryableError: Si el estado alterado no se observa a tiempo.
     Side Effects:
         Modifica únicamente el recurso de prueba de ese grupo.
     """
-    # TODO I6-A: resolver el alias en inventario; jamás recibir InstanceId libre.
-    # node-01: stop_instances y comprobar stopped, con consultas limitadas.
-    # bucket-01: quitar Owner conservando el resto de etiquetas.
-    # Esta función fabrica el problema; no debe enviar el evento automáticamente.
-    raise NotImplementedError("I6-A: inyectar y comprobar fallo")
+    resource = load(INVENTORY).get(alias)  # Solo aliases del manifiesto propio.
+    if alias.startswith("_") or not isinstance(resource, dict):
+        raise ValidationError("Alias fuera del inventario; ejecutar setup-demo")
+    if resource["type"] == "ec2":
+        ec2 = client("ec2")
+        ec2.stop_instances(InstanceIds=[resource["id"]])
+        for _ in range(10):  # Espera acotada: como máximo unos 10 segundos.
+            state = ec2.describe_instances(InstanceIds=[resource["id"]])[
+                "Reservations"][0]["Instances"][0]["State"]["Name"]
+            if state == "stopped":
+                return
+            time.sleep(1)
+        raise RetryableError("La instancia no llegó a stopped; volver a consultar")
+    s3 = client("s3")
+    current = _bucket_tags(s3, resource["id"])
+    current.pop("Owner", None)  # Se quita solo Owner; el resto se conserva.
+    if current:
+        s3.put_bucket_tagging(Bucket=resource["id"], Tagging={"TagSet": aws_tags(current)})
+    else:
+        s3.delete_bucket_tagging(Bucket=resource["id"])
+    if "Owner" in _bucket_tags(s3, resource["id"]):  # Se verifica por API, no se supone.
+        raise RetryableError("El bucket todavía conserva Owner")
+
 
 def _bucket_tags(s3, bucket: str) -> dict[str, str]:
     """Lee las etiquetas de un bucket como diccionario.

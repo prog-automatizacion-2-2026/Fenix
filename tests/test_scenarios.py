@@ -1,55 +1,102 @@
-"""Guía ejecutable del integrante 6; sustituir cada pendiente por aserciones reales."""
-import pytest  # Mantiene visibles los casos sin implementar.
+"""Escenarios de diagnóstico (I6): duplicados, orden del ACK y redrive real a la DLQ."""
+import logging  # Logger del worker en las pruebas.
+import time  # Deadline acotado para esperar la DLQ.
+import uuid  # Prefijo de colas exclusivo por ejecución.
+import pytest  # Fixtures y marcas.
+from fenix.services import remediation, sqs, worker
+from fenix.utils.errors import RetryableError
+from fenix.utils.state import save
 
-@pytest.mark.pendiente
-def test_duplicate_is_idempotent():
-    """Comprueba que repetir un evento no repite recursos ni acciones completadas.
+INVENTORY = {"node-01": {"type": "ec2", "id": "i-test"}}
+EVENT = {"schema_version": 1, "event_id": "evt-node-001", "event_type": "instance.stopped",
+         "resource_id": "node-01", "occurred_at": "2026-10-22T18:00:00Z",
+         "simulate_failures": 0}
+
+
+class CountingEC2:
+    """Cliente EC2 falso: arranca en stopped y cuenta las llamadas a start_instances."""
+
+    def __init__(self):
+        self.state, self.starts = "stopped", 0
+
+    def describe_instances(self, InstanceIds):
+        return {"Reservations": [{"Instances": [{"State": {"Name": self.state}}]}]}
+
+    def start_instances(self, InstanceIds):
+        self.starts += 1
+        self.state = "running"
+
+
+def test_duplicate_is_idempotent(tmp_path, monkeypatch):
+    """Repetir un evento no repite la acción en EC2 ni el aviso.
 
     Returns:
         None cuando dos ejecuciones conservan el estado final esperado.
-    Raises:
-        NotImplementedError: Hasta que I6 implemente la preparación y aserciones.
     Notes:
-        Usar un cliente falso con contador de llamadas; reinicializar el handler
-        leyendo el mismo ledger para que el ensayo represente un reinicio.
+        Se usa el repair real con un cliente falso que cuenta llamadas; el ledger
+        se relee de disco en cada handle, como ocurriría tras reiniciar el worker.
     """
-    # TODO I6-B: preparar inventario/manifiesto válido en tmp_path y evento fijo.
-    # Ejecutar handler dos veces; verificar IDs y una sola acción efectiva.
-    # Guardar/releer el estado antes de la segunda ejecución; no usar un set en memoria.
-    raise NotImplementedError("I6-B: prueba durable de duplicados")
+    monkeypatch.chdir(tmp_path)
+    save("data/inventory.json", INVENTORY)
+    ec2, sent = CountingEC2(), []
+    monkeypatch.setattr(remediation, "client", lambda service: ec2)
+    monkeypatch.setattr(remediation, "notify", sent.append)
+    remediation.handle(dict(EVENT))
+    remediation.handle(dict(EVENT))
+    assert ec2.starts == 1  # Una sola acción efectiva.
+    assert len(sent) == 1  # Un solo aviso confirmado.
+    assert ec2.state == "running"
 
-@pytest.mark.pendiente
-def test_ack_is_after_success():
-    """Verifica que un handler fallido jamás confirma la entrega de SQS.
 
-    Returns:
-        None si fallo=retry sin ACK y éxito=ACK exactamente al finalizar.
-    Raises:
-        NotImplementedError: Hasta que I6 conecte fixtures y mocks del transporte.
-    Notes:
-        No reemplazar el worker entero por un mock: observar llamadas reales de run.
-    """
-    # TODO I6-C: monkeypatch receive para devolver una entrega con ReceiptHandle fijo.
-    # Reemplazar acknowledge y retry_later por funciones que anoten el orden.
-    # Ejecutar run(once=True) con handler fallido y exigir cero ACK.
-    # Repetir con handler exitoso y exigir handler primero, acknowledge después.
-    raise NotImplementedError("I6-C: probar orden y condición del ACK")
+def _run_once(monkeypatch, handler):
+    """Ejecuta run(once=True) con una entrega fija y devuelve el orden de llamadas."""
+    order = []
+    message = {"MessageId": "m-1", "ReceiptHandle": "r-fijo",
+               "Body": '{"event_id": "evt-node-001"}',
+               "Attributes": {"ApproximateReceiveCount": "1"}}
+    monkeypatch.setattr(worker, "receive", lambda url: [message])
+    monkeypatch.setattr(worker, "acknowledge",
+                        lambda url, receipt: order.append(("ack", receipt)))
+    monkeypatch.setattr(worker, "retry_later",
+                        lambda url, msg: order.append(("retry", msg["ReceiptHandle"])) or 2)
+
+    def tracked(event):
+        order.append(("handler", event["event_id"]))
+        handler(event)
+    worker.run("http://cola-falsa", tracked, logging.getLogger("test-ack"), once=True)
+    return order
+
+
+def test_ack_is_after_success(monkeypatch):
+    """Un handler fallido jamás confirma; uno exitoso confirma después de terminar."""
+    def failing(event):
+        raise RetryableError("dependencia caída")
+    assert _run_once(monkeypatch, failing) == [("handler", "evt-node-001"),
+                                               ("retry", "r-fijo")]
+    assert _run_once(monkeypatch, lambda event: None) == [("handler", "evt-node-001"),
+                                                          ("ack", "r-fijo")]
+
 
 @pytest.mark.integracion
 def test_redrive_with_localstack():
-    """Comprueba DLQ efectiva usando el broker, no una lista simulada en Python.
+    """Un mensaje venenoso termina en la DLQ real y el worker sigue vivo.
 
-    Returns:
-        None si un mensaje venenoso termina en la DLQ y el worker sigue vivo.
-    Raises:
-        NotImplementedError: Hasta implementar el ensayo con espera total acotada.
     Side Effects:
-        Crea colas de prueba exclusivas y las limpia después de guardar evidencia.
+        Crea colas de prueba con prefijo propio; no toca las colas del grupo.
     Notes:
-        Usar un prefijo de test nuevo y no purgar colas del laboratorio del grupo.
+        Se compara el Body original leído de la DLQ; el contador aproximado no basta.
     """
-    # TODO I6-D: publicar JSON corrupto en una cola con RedrivePolicy real.
-    # Consumir con el worker y consultar DLQ con deadline total de 120 segundos.
-    # Comparar el Body original; un contador aproximado por sí solo no demuestra redrive.
-    # Si se agota el deadline, fallar con diagnóstico; no pasar el test por timeout.
-    raise NotImplementedError("I6-D: verificar redrive real en LocalStack")
+    prefix = f"fenix-test-{uuid.uuid4().hex[:8]}"
+    work, dead = sqs.ensure_queues(prefix)
+    body = "{esto no es json"
+    sqs.client("sqs").send_message(QueueUrl=work, MessageBody=body)
+    logger = logging.getLogger("test-redrive")
+    deadline = time.monotonic() + 120  # Espera total acotada.
+    found = None
+    while time.monotonic() < deadline and found is None:
+        worker.run(work, lambda event: None, logger, once=True)  # No debe lanzar.
+        rows = sqs.client("sqs").receive_message(
+            QueueUrl=dead, MaxNumberOfMessages=1, WaitTimeSeconds=1,
+            VisibilityTimeout=0).get("Messages", [])
+        found = rows[0]["Body"] if rows else None
+    assert found == body, "El mensaje no llegó a la DLQ dentro de 120 s"
