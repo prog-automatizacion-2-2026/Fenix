@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-11-20T10:38:18.441915+00:00",
+  "level": "INFO",
+  "message": "reparacion_verificada",
+  "process": 7292,
+  "thread": "MainThread",
+  "event_id": "evt-demo-nodo-01",
+  "message_id": null,
+  "resource_id": "node-01",
+  "attempt": 1,
+  "action": "repair",
+  "status": "repaired"
+}
