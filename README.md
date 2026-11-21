@@ -221,7 +221,9 @@ Video grupal con la ejecución real en pantalla: [carpeta en Google Drive](https
 
 ## Declaración de ayuda externa e IA
 
-_(pendiente: la redacta el grupo)_
+- **Qué se utilizó:** Claude (Anthropic) como asistente de apoyo durante el desarrollo, la preparación de pruebas y la documentación. Además, la documentación oficial listada en la consigna (LocalStack, AWS SQS y Boto3) y el material de la cátedra. No hubo ayuda de personas ajenas al grupo.
+- **Qué se modificó:** cada integrante revisó, ajustó e integró el código de su módulo y es responsable de explicarlo y modificarlo en la defensa. Las decisiones de diseño (contrato cerrado, backoff sobre la misma entrega, ledger por etapas, ACK al final) fueron discutidas y adoptadas por el grupo.
+- **Cómo se verificó:** con la suite completa (63 pruebas, incluidas las de integración contra LocalStack), con la ejecución real grabada en el video, con las evidencias de `evidencias/` y con una instalación desde un clon nuevo siguiendo solo este README.
 
 ## Flujo de trabajo
 
