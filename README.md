@@ -177,7 +177,7 @@ _(pendiente)_
 
 ## Video
 
-_(pendiente: vínculo y marcas de tiempo por integrante)_
+Video grupal con la ejecución real en pantalla: [carpeta en Google Drive](https://drive.google.com/drive/folders/1Ls1J6ED0fsXhaz5zOxwKaD-fG2W2_MWu?usp=sharing).
 
 ## Declaración de ayuda externa e IA
 
