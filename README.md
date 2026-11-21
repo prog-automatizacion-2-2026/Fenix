@@ -17,10 +17,10 @@ Reparaciones cubiertas:
 
 | Rol | Apellido y nombre | Correo | Módulos | Pruebas defendidas |
 |---|---|---|---|---|
-| I3 + I5 — Webhooks, reparación, integración y worker | Fernández, Ariel | _(completar)_ | `utils/crypto.py`, `services/receiver.py`, `services/remediation.py`, `services/worker.py`, `cli.py` | F02, F03, F04, F05, F06, F09, F11, F12, F13, F15 |
-| I1 — Entradas y excepciones | Alves Pinto, Clelia | _(completar)_ | `utils/errors.py`, `utils/validation.py`, `services/events.py` | F07 |
-| I2 — Mensajería e inventario cloud | Chumacero, René | _(completar)_ | `services/sqs.py`, `services/demo.py` (`setup_demo`) | F01, F08, F10 |
-| I4 + I6 — Observabilidad, comunicación y diagnóstico | Díaz, Francisco | _(completar)_ | `utils/logging_json.py`, `services/notifications.py`, `services/demo.py` (`inject_fault`), `tests/test_scenarios.py` | F14, F16 |
+| I3 + I5 — Webhooks, reparación, integración y worker | Fernández, Ariel | lic.arielfernandez.hys@gmail.com | `utils/crypto.py`, `services/receiver.py`, `services/remediation.py`, `services/worker.py`, `cli.py` | F02, F03, F04, F05, F06, F09, F11, F12, F13, F15 |
+| I1 — Entradas y excepciones | Alves Pinto, Clelia | cleliaalves376@gmail.com | `utils/errors.py`, `utils/validation.py`, `services/events.py` | F07 |
+| I2 — Mensajería e inventario cloud | Chumacero, René | renetevez273@gmail.com | `services/sqs.py`, `services/demo.py` (`setup_demo`) | F01, F08, F10 |
+| I4 + I6 — Observabilidad, comunicación y diagnóstico | Díaz, Francisco | franciscodiaz799@gmail.com | `utils/logging_json.py`, `services/notifications.py`, `services/demo.py` (`inject_fault`), `tests/test_scenarios.py` | F14, F16 |
 
 ## Prerrequisitos y versiones
 
