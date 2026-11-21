@@ -1,0 +1,81 @@
+# Suite completa contra LocalStack (localstack/localstack:3) — 2026-11-21T00:30:12Z
+# Python 3.14.6 — Windows 11
+$ python -m pytest -v
+============================= test session starts =============================
+platform win32 -- Python 3.14.6, pytest-9.2.0, pluggy-1.7.0 -- D:\03 - Repositorios\fenix\.venv\Scripts\python.exe
+rootdir: D:\03 - Repositorios\fenix
+configfile: pyproject.toml
+plugins: anyio-4.16.0
+collecting ... collected 63 items
+
+tests/test_base.py::test_state_survives_restart PASSED                   [  1%]
+tests/test_base.py::test_corrupt_state_is_not_empty PASSED               [  3%]
+tests/test_base.py::test_delay_is_bounded PASSED                         [  4%]
+tests/test_base.py::test_json_log_context PASSED                         [  6%]
+tests/test_contracts.py::test_identifier_contract PASSED                 [  7%]
+tests/test_contracts.py::test_ttl_contract PASSED                        [  9%]
+tests/test_contracts.py::test_utc_contract PASSED                        [ 11%]
+tests/test_events.py::test_valid_event_returns_copy PASSED               [ 12%]
+tests/test_events.py::test_list_is_not_an_event PASSED                   [ 14%]
+tests/test_events.py::test_contract_rejections[change0] PASSED           [ 15%]
+tests/test_events.py::test_contract_rejections[change1] PASSED           [ 17%]
+tests/test_events.py::test_contract_rejections[change2] PASSED           [ 19%]
+tests/test_events.py::test_contract_rejections[change3] PASSED           [ 20%]
+tests/test_events.py::test_contract_rejections[change4] PASSED           [ 22%]
+tests/test_events.py::test_contract_rejections[change5] PASSED           [ 23%]
+tests/test_events.py::test_contract_rejections[change6] PASSED           [ 25%]
+tests/test_events.py::test_contract_rejections[change7] PASSED           [ 26%]
+tests/test_events.py::test_contract_rejections[change8] PASSED           [ 28%]
+tests/test_events.py::test_contract_rejections[change9] PASSED           [ 30%]
+tests/test_events.py::test_contract_rejections[change10] PASSED          [ 31%]
+tests/test_events.py::test_contract_rejections[change11] PASSED          [ 33%]
+tests/test_events.py::test_contract_rejections[change12] PASSED          [ 34%]
+tests/test_events.py::test_missing_field_is_rejected PASSED              [ 36%]
+tests/test_events.py::test_lab_metadata_is_not_an_alias PASSED           [ 38%]
+tests/test_fenix.py::test_signature_authenticates_raw_bytes PASSED       [ 39%]
+tests/test_logging_rotation.py::test_rotation_produces_readable_gzip PASSED [ 41%]
+tests/test_logging_rotation.py::test_five_levels_and_null_fields PASSED  [ 42%]
+tests/test_notifications.py::test_slack_ok PASSED                        [ 44%]
+tests/test_notifications.py::test_transient_failures[outcome0] PASSED    [ 46%]
+tests/test_notifications.py::test_transient_failures[outcome1] PASSED    [ 47%]
+tests/test_notifications.py::test_transient_failures[outcome2] PASSED    [ 49%]
+tests/test_notifications.py::test_transient_failures[outcome3] PASSED    [ 50%]
+tests/test_notifications.py::test_permanent_failures[outcome0] PASSED    [ 52%]
+tests/test_notifications.py::test_permanent_failures[outcome1] PASSED    [ 53%]
+tests/test_notifications.py::test_telegram_requires_ok_true PASSED       [ 55%]
+tests/test_notifications.py::test_notify_retry_does_not_repeat_repair PASSED [ 57%]
+tests/test_receiver.py::test_valid_event_is_accepted PASSED              [ 58%]
+tests/test_receiver.py::test_bad_signature_is_401[None] PASSED           [ 60%]
+tests/test_receiver.py::test_bad_signature_is_401[t=1,v1=0000000000000000000000000000000000000000000000000000000000000000] PASSED [ 61%]
+tests/test_receiver.py::test_bad_signature_is_401[basura] PASSED         [ 63%]
+tests/test_receiver.py::test_old_timestamp_is_401 PASSED                 [ 65%]
+tests/test_receiver.py::test_same_json_other_bytes_is_401 PASSED         [ 66%]
+tests/test_receiver.py::test_broken_json_is_400_and_list_is_422 PASSED   [ 68%]
+tests/test_receiver.py::test_contract_errors_are_422[change0] PASSED     [ 69%]
+tests/test_receiver.py::test_contract_errors_are_422[change1] PASSED     [ 71%]
+tests/test_receiver.py::test_contract_errors_are_422[change2] PASSED     [ 73%]
+tests/test_receiver.py::test_body_too_large_is_413 PASSED                [ 74%]
+tests/test_receiver.py::test_sqs_down_is_503 PASSED                      [ 76%]
+tests/test_scenarios.py::test_duplicate_is_idempotent PASSED             [ 77%]
+tests/test_scenarios.py::test_ack_is_after_success PASSED                [ 79%]
+tests/test_scenarios.py::test_redrive_with_localstack PASSED             [ 80%]
+tests/test_sqs_demo.py::test_retry_later_backoff[1-2] PASSED             [ 82%]
+tests/test_sqs_demo.py::test_retry_later_backoff[2-4] PASSED             [ 84%]
+tests/test_sqs_demo.py::test_retry_later_backoff[3-8] PASSED             [ 85%]
+tests/test_sqs_demo.py::test_retry_later_backoff[5-30] PASSED            [ 87%]
+tests/test_sqs_demo.py::test_retry_later_backoff[9-30] PASSED            [ 88%]
+tests/test_sqs_demo.py::test_queues_are_idempotent PASSED                [ 90%]
+tests/test_sqs_demo.py::test_setup_demo_is_idempotent PASSED             [ 92%]
+tests/test_worker_ledger.py::test_completed_event_is_not_repeated PASSED [ 93%]
+tests/test_worker_ledger.py::test_simulated_failures_survive_restart PASSED [ 95%]
+tests/test_worker_ledger.py::test_resume_only_pending_notification PASSED [ 96%]
+tests/test_worker_ledger.py::test_same_id_other_content_is_conflict PASSED [ 98%]
+tests/test_worker_ledger.py::test_corrupt_message_does_not_stop_worker PASSED [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\03 - Repositorios\fenix\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 63 passed, 1 warning in 19.19s ========================

@@ -15,4 +15,3 @@
 - [ ] Sin secretos, tokens, firmas completas ni URLs privadas en código o logs
 - [ ] `python -m pytest -m base -q` sigue pasando
 - [ ] Probado contra LocalStack
-- [ ] Reviewer asignado

@@ -1,0 +1,7 @@
+# F10: falla persistente (simulate_failures=5) derivada por SQS a la DLQ
+# Fecha (UTC): 2026-11-21T00:28:57Z
+
+$ python -c "from fenix.config.settings import client; q=client('sqs'); u=q.get_queue_url(QueueName='fenix-grupo01-dlq')['QueueUrl']; print(q.receive_message(QueueUrl=u, MaxNumberOfMessages=10, VisibilityTimeout=0).get('Messages'))"
+Mensajes leídos de fenix-grupo01-dlq (sin borrar): 1
+- MessageId=fb7aa3b6-7740-47da-b772-3aa7048dca0a ApproximateReceiveCount=5
+  Body={"schema_version": 1, "event_id": "evt-demo-dlq-01", "event_type": "instance.stopped", "resource_id": "node-01", "occurred_at": "2026-11-20T18:00:00Z", "simulate_failures": 5}

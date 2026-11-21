@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-11-20T10:29:27.230464+00:00",
+  "level": "WARNING",
+  "message": "fallo_procesamiento",
+  "process": 7292,
+  "thread": "MainThread",
+  "event_id": "evt-demo-dlq-01",
+  "message_id": "fb7aa3b6-7740-47da-b772-3aa7048dca0a",
+  "resource_id": "node-01",
+  "attempt": 1,
+  "action": "handle",
+  "status": "RetryableError"
+}

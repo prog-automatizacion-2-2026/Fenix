@@ -35,6 +35,9 @@ def main() -> int:
     fault.add_argument("alias", choices=["node-01", "bucket-01"])  # Sin IDs arbitrarios.
     send = sub.add_parser("send")  # Emite el evento por HTTP.
     send.add_argument("file")  # Archivo JSON visible para la defensa.
+    send.add_argument("--firma", choices=["valida", "alterada", "vencida", "ausente"],
+                      default="valida")  # Casos F04 sin editar código.
+    send.add_argument("--sin-validar", action="store_true")  # Permite F06 (JSON roto firmado).
     consume = sub.add_parser("worker")  # Procesa la cola local.
     consume.add_argument("--once", action="store_true")  # Una consulta para pruebas.
     args = parser.parse_args()  # Errores sintácticos salen con código 2.
@@ -50,14 +53,24 @@ def main() -> int:
             demo.inject_fault(args.alias)  # I6 implementa la inyección.
         elif args.command == "send":  # Firma exactamente lo que envía.
             body = Path(args.file).read_bytes()  # No reserializa después de firmar.
-            json.loads(body)  # Rechaza archivos no JSON antes de enviar.
+            if not args.sin_validar:
+                json.loads(body)  # Rechaza archivos no JSON antes de enviar.
             timestamp = int(time.time())  # La firma autentica también este número.
+            if args.firma == "vencida":
+                timestamp -= 3600  # Una hora atrás: fuera de la ventana de 300 s.
             digest = signature(os.environ["WEBHOOK_SECRET"], timestamp, body)
+            if args.firma == "alterada":
+                digest = ("0" if digest[0] != "0" else "1") + digest[1:]  # Un dígito distinto.
+            headers = {"Content-Type": "application/json"}
+            if args.firma != "ausente":
+                headers["X-Webhook-Signature"] = f"t={timestamp},v1={digest}"
             response = requests.post("http://127.0.0.1:8000/webhook", data=body,
-                headers={"Content-Type": "application/json",
-                         "X-Webhook-Signature": f"t={timestamp},v1={digest}"}, timeout=(2, 15))
-            response.raise_for_status()  # No mostrar éxito ante 4xx o 5xx.
+                                     headers=headers, timeout=(2, 15))
             print(response.status_code, response.text)  # Respuesta pública del receptor.
+            logger.info("webhook_enviado", extra={"action": "send",
+                                                  "status": str(response.status_code)})
+            if response.status_code != 202:  # No mostrar éxito ante 4xx o 5xx.
+                code = 1
         elif args.command == "worker":  # Consume un mensaje por consulta.
             worker.run(sqs.queue_url(prefix), remediation.handle, logger, args.once)
     except KeyboardInterrupt:  # Detención manual esperada.

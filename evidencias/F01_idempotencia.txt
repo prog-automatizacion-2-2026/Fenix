@@ -1,0 +1,14 @@
+# F01: init-queues y setup-demo ejecutados dos veces
+# Fecha (UTC): 2026-11-21T00:29:00Z
+
+$ python -m fenix.cli init-queues
+('http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/fenix-grupo01-events', 'http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/fenix-grupo01-dlq')
+
+$ python -m fenix.cli init-queues
+('http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/fenix-grupo01-events', 'http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/fenix-grupo01-dlq')
+
+$ python -m fenix.cli setup-demo
+{'_lab': {'group': 'grupo01', 'vpc_id': 'vpc-861e4e0a', 'image_id': 'ami-0002eba4f029226a3'}, 'node-01': {'type': 'ec2', 'security_group_id': 'sg-9490e030077e9f36d', 'id': 'i-55694f55ab1b360af', 'expected_tags': {'ManagedBy': 'ppa2', 'Project': 'fenix', 'GroupId': 'grupo01', 'Owner': 'grupo01'}}, 'bucket-01': {'type': 's3', 'id': 'fenix-grupo01-demo', 'expected_tags': {'ManagedBy': 'ppa2', 'Project': 'fenix', 'GroupId': 'grupo01', 'Owner': 'grupo01'}}}
+
+$ python -m fenix.cli setup-demo
+{'_lab': {'group': 'grupo01', 'vpc_id': 'vpc-861e4e0a', 'image_id': 'ami-0002eba4f029226a3'}, 'node-01': {'type': 'ec2', 'security_group_id': 'sg-9490e030077e9f36d', 'id': 'i-55694f55ab1b360af', 'expected_tags': {'ManagedBy': 'ppa2', 'Project': 'fenix', 'GroupId': 'grupo01', 'Owner': 'grupo01'}}, 'bucket-01': {'type': 's3', 'id': 'fenix-grupo01-demo', 'expected_tags': {'ManagedBy': 'ppa2', 'Project': 'fenix', 'GroupId': 'grupo01', 'Owner': 'grupo01'}}}

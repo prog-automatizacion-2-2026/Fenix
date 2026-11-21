@@ -1,0 +1,6 @@
+# Estado real del laboratorio consultado con Boto3 (describe_instances / get_bucket_tagging)
+# Fecha (UTC): 2026-11-21T00:29:47Z
+
+$ client('ec2').describe_instances(InstanceIds=[<node-01>]); client('s3').get_bucket_tagging(Bucket=<bucket-01>)
+node-01 (i-55694f55ab1b360af): running
+bucket-01 (fenix-grupo01-demo): {'ManagedBy': 'ppa2', 'Project': 'fenix', 'GroupId': 'grupo01', 'Owner': 'grupo01'}
