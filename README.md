@@ -179,6 +179,14 @@ _(pendiente)_
 
 Video grupal con la ejecución real en pantalla: [carpeta en Google Drive](https://drive.google.com/drive/folders/1Ls1J6ED0fsXhaz5zOxwKaD-fG2W2_MWu?usp=sharing).
 
+| Desde | Hasta | Integrante | Contenido |
+|---|---|---|---|
+| 0:00 | 1:51 | Fernández, Ariel | Presentación del equipo, arquitectura y flujo del sistema |
+| 1:52 | 5:21 | Alves Pinto, Clelia | I1: validación del contrato; evento válido (202) y rechazos (422) |
+| 5:21 | 10:07 | Chumacero, René | I2: colas idempotentes, laboratorio, backoff y mensaje real en la DLQ |
+| 10:07 | 13:43 | Díaz, Francisco | I4 + I6: logs JSON, inyección de fallas y pruebas de avisos y rotación |
+| 13:43 | 21:59 | Fernández, Ariel | I3 + I5: firma HMAC, reparación verificada, duplicado, reintentos y cierre con la suite completa |
+
 ## Declaración de ayuda externa e IA
 
 _(pendiente)_
